@@ -1,25 +1,26 @@
 // Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
 
-namespace UnrealBuildTool.Rules
+using UnrealBuildTool;
+
+public class VlcMediaEditor : ModuleRules
 {
-	public class VlcMediaEditor : ModuleRules
+	public VlcMediaEditor( ReadOnlyTargetRules target ) : base( target )
 	{
-		public VlcMediaEditor(ReadOnlyTargetRules Target) : base(Target)
-		{
-			PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-			PrivateDependencyModuleNames.AddRange(
-				new string[] {
-					"Core",
-					"CoreUObject",
-					"MediaAssets",
-					"UnrealEd",
-				});
+		PrivateDependencyModuleNames.AddRange(
+			new[]
+			{
+				"Core",
+				"CoreUObject",
+				"MediaAssets",
+				"UnrealEd",
+			} );
 
-			PrivateIncludePaths.AddRange(
-				new string[] {
-					"VlcMediaEditor/Private",
-				});
-		}
+		PrivateIncludePaths.AddRange(
+			new[]
+			{
+				"VlcMediaEditor/Private",
+			} );
 	}
 }
