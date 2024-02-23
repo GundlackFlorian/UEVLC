@@ -147,7 +147,7 @@ public:
 
 	virtual FMediaTimeStamp GetTime() const override
 	{
-		return Time;
+		return FMediaTimeStamp( Time );
 	}
 
 	virtual bool IsCacheable() const override

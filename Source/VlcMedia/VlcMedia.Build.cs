@@ -1,87 +1,87 @@
 // Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
 
+using UnrealBuildTool;
 using System.IO;
 
-namespace UnrealBuildTool.Rules
+public class VlcMedia : ModuleRules
 {
-	using System.IO;
-
-	public class VlcMedia : ModuleRules
+	public VlcMedia( ReadOnlyTargetRules target ) : base( target )
 	{
-		public VlcMedia(ReadOnlyTargetRules Target) : base(Target)
+		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
+		DynamicallyLoadedModuleNames.AddRange(
+			new[]
+			{
+				"Media",
+			} );
+
+		PrivateDependencyModuleNames.AddRange(
+			new[]
+			{
+				"Core",
+				"CoreUObject",
+				"MediaUtils",
+				"Projects",
+				"RenderCore",
+				"VlcMediaFactory",
+			} );
+
+		PrivateIncludePathModuleNames.AddRange(
+			new[]
+			{
+				"Media",
+			} );
+
+		PrivateIncludePaths.AddRange(
+			new[]
+			{
+				"VlcMedia/Private",
+				"VlcMedia/Private/Player",
+				"VlcMedia/Private/Shared",
+				"VlcMedia/Private/Vlc",
+			} );
+
+		// add VLC libraries
+		var baseDirectory = Path.GetFullPath( Path.Combine( ModuleDirectory, "..", ".." ) );
+		var vlcDirectory = Path.Combine( baseDirectory, "ThirdParty", "vlc", target.Platform.ToString() );
+
+		if ( target.Platform == UnrealTargetPlatform.Linux )
 		{
-			PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+			vlcDirectory = Path.Combine( vlcDirectory, target.Architecture.ToString(), "lib" );
+			RuntimeDependencies.Add( Path.Combine( vlcDirectory, "libvlc.so" ) );
+			RuntimeDependencies.Add( Path.Combine( vlcDirectory, "libvlc.so.5" ) );
+			RuntimeDependencies.Add( Path.Combine( vlcDirectory, "libvlc.so.5.6.0" ) );
+			RuntimeDependencies.Add( Path.Combine( vlcDirectory, "libvlccore.so" ) );
+			RuntimeDependencies.Add( Path.Combine( vlcDirectory, "libvlccore.so.9" ) );
+			RuntimeDependencies.Add( Path.Combine( vlcDirectory, "libvlccore.so.9.0.0" ) );
+		}
+		else if ( target.Platform == UnrealTargetPlatform.Mac )
+		{
+			RuntimeDependencies.Add( Path.Combine( vlcDirectory, "libvlc.dylib" ) );
+			RuntimeDependencies.Add( Path.Combine( vlcDirectory, "libvlc.5.dylib" ) );
+			RuntimeDependencies.Add( Path.Combine( vlcDirectory, "libvlccore.dylib" ) );
+			RuntimeDependencies.Add( Path.Combine( vlcDirectory, "libvlccore.9.dylib" ) );
+		}
 
-			DynamicallyLoadedModuleNames.AddRange(
-				new string[] {
-					"Media",
-				});
+		else if ( target.Platform == UnrealTargetPlatform.Win64 )
+		{
+			RuntimeDependencies.Add( Path.Combine( vlcDirectory, "libvlc.dll" ) );
+			RuntimeDependencies.Add( Path.Combine( vlcDirectory, "libvlccore.dll" ) );
+		}
 
-			PrivateDependencyModuleNames.AddRange(
-				new string[] {
-					"Core",
-					"CoreUObject",
-					"MediaUtils",
-					"Projects",
-					"RenderCore",
-					"VlcMediaFactory",
-				});
+		// add VLC plug-ins
+		var pluginDirectory = Path.Combine( vlcDirectory, "plugins" );
 
-			PrivateIncludePathModuleNames.AddRange(
-				new string[] {
-					"Media",
-				});
+		if ( target.Platform == UnrealTargetPlatform.Linux )
+		{
+			pluginDirectory = Path.Combine( vlcDirectory, "vlc", "plugins" );
+		}
 
-			PrivateIncludePaths.AddRange(
-				new string[] {
-					"VlcMedia/Private",
-					"VlcMedia/Private/Player",
-					"VlcMedia/Private/Shared",
-					"VlcMedia/Private/Vlc",
-				});
-
-			// add VLC libraries
-			string BaseDirectory = Path.GetFullPath(Path.Combine(ModuleDirectory, "..", ".."));
-			string VlcDirectory = Path.Combine(BaseDirectory, "ThirdParty", "vlc", Target.Platform.ToString());
-
-			if (Target.Platform == UnrealTargetPlatform.Linux)
+		if ( Directory.Exists( pluginDirectory ) )
+		{
+			foreach ( var plugin in Directory.EnumerateFiles( pluginDirectory, "*.*", SearchOption.AllDirectories ) )
 			{
-				VlcDirectory = Path.Combine(VlcDirectory, Target.Architecture, "lib");
-				RuntimeDependencies.Add(Path.Combine(VlcDirectory, "libvlc.so"));
-				RuntimeDependencies.Add(Path.Combine(VlcDirectory, "libvlc.so.5"));
-				RuntimeDependencies.Add(Path.Combine(VlcDirectory, "libvlc.so.5.6.0"));
-				RuntimeDependencies.Add(Path.Combine(VlcDirectory, "libvlccore.so"));
-				RuntimeDependencies.Add(Path.Combine(VlcDirectory, "libvlccore.so.9"));
-				RuntimeDependencies.Add(Path.Combine(VlcDirectory, "libvlccore.so.9.0.0"));
-			}
-			else if (Target.Platform == UnrealTargetPlatform.Mac)
-			{
-				RuntimeDependencies.Add(Path.Combine(VlcDirectory, "libvlc.dylib"));
-				RuntimeDependencies.Add(Path.Combine(VlcDirectory, "libvlc.5.dylib"));
-				RuntimeDependencies.Add(Path.Combine(VlcDirectory, "libvlccore.dylib"));
-				RuntimeDependencies.Add(Path.Combine(VlcDirectory, "libvlccore.9.dylib"));
-			}
-		
-			else if (Target.Platform == UnrealTargetPlatform.Win64)
-			{
-				RuntimeDependencies.Add(Path.Combine(VlcDirectory, "libvlc.dll"));
-				RuntimeDependencies.Add(Path.Combine(VlcDirectory, "libvlccore.dll"));
-			}
-
-			// add VLC plug-ins
-			string PluginDirectory = Path.Combine(VlcDirectory, "plugins");
-            
-			if (Target.Platform == UnrealTargetPlatform.Linux)
-			{
-				PluginDirectory = Path.Combine(VlcDirectory, "vlc", "plugins");
-			}
-
-			if (Directory.Exists(PluginDirectory))
-			{
-				foreach (string Plugin in Directory.EnumerateFiles(PluginDirectory, "*.*", SearchOption.AllDirectories))
-				{
-					RuntimeDependencies.Add(Path.Combine(PluginDirectory, Plugin));
-				}
+				RuntimeDependencies.Add( Path.Combine( pluginDirectory, plugin ) );
 			}
 		}
 	}
